@@ -1,8 +1,8 @@
 import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../src/config/firebaseConfig"; 
+import { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { auth } from "../src/config/firebaseConfig";
 
 export default function RootLayout() {
   const [initializing, setInitializing] = useState(true);
@@ -15,25 +15,21 @@ export default function RootLayout() {
       setUser(currentUser);
       if (initializing) setInitializing(false);
     });
-    return subscriber; 
+    return subscriber;
   }, []);
-
-  
+ 
   useEffect(() => {
     if (initializing) return;
-
-    const inAuthGroup = segments[0] === "(tabs)"; 
     
-    if (user && !inAuthGroup) {
-      
-      router.replace("/(tabs)");
-    } else if (!user && inAuthGroup) {
-      
-      router.replace("/login");
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (user && inAuthGroup) {
+      router.replace("/(main)/home");
+    } else if (!user && !inAuthGroup) {
+      router.replace("/(auth)/login");
     }
   }, [user, initializing, segments]);
 
-  
   if (initializing) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -41,14 +37,13 @@ export default function RootLayout() {
       </View>
     );
   }
-
   
   return (
-    <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="register" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(main)" />
+      <Stack.Screen name="(admin)" />
+      <Stack.Screen name="quiz" />
     </Stack>
   );
 }
-
